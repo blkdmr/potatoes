@@ -37,7 +37,7 @@ def classify(cropped, backbone, classifier, transform, device):
 
 def main():
 
-    YOLO_path = "models/best.pt"  # Path to the YOLO
+    YOLO_path = "models/yolo_fined.pt"  # Path to the YOLO
     image_path = "dataset/rotten_healthy/test/"  # Path to the input image
     results_path = "output"  # Path to save the output image
     final_classes = ["Healthy", "Rotten"]
