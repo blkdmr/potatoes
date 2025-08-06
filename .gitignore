@@ -1,0 +1,13 @@
+dataset/potatoes-v11/
+dataset/rotten_/
+dataset/rotten_healthy/
+
+models/
+output/
+
+*.pt
+*.pkl
+*.webp
+*.jpg
+*.jpeg
+*.png
