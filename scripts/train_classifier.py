@@ -109,6 +109,7 @@ def load_backbone(backbone_name='resnet50'):
     return backbone, device
 
 def main():
+
     backbone, device = load_backbone('resnet50')
     data_dir = '../dataset/rotten_healthy'
     export_dir = '../models'
@@ -118,7 +119,7 @@ def main():
     clf.fit(X_train, y_train)
 
     test_preds = clf.predict(X_test)
-    print(f"Test Accuracy: {accuracy_score(y_test, test_preds):.2%}")
+    print(f"Test Accuracy: {accuracy_score(y_test, test_preds)}")
     print(classification_report(y_test, test_preds, target_names=["Healthy", "Rotten"]))
 
     # Save the model
