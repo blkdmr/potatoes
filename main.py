@@ -7,50 +7,41 @@ import os
 from PIL import Image
 from torchvision import transforms
 
-def load_backbone(backbone_name='resnet50'):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    backbone = timm.create_model(backbone_name, pretrained=True)
-    # Freeze the model
-    backbone.eval()  # disables dropout, batchnorm updates
-    for param in backbone.parameters():
-        param.requires_grad = False
-
-    backbone.to(device)
-    return backbone, device
-
-
 def detect():
     pass
 
-def classify(cropped, backbone, classifier, transform, device):
+def classify(cropped, model, transform, device):
     image_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB) # Convert from BGR to RGB
     # Crea un oggetto PIL.Image dalla matrice numpy
     image_pil = Image.fromarray(image_rgb)
     image_pil = transform(image_pil)
     image_pil = image_pil.unsqueeze(0) # Add batch dimension
     image_pil = image_pil.to(device)
-    feats = backbone.forward_features(image_pil)
-    pooled = feats.mean(dim=[2, 3])  # global average pooling to [B, 2048]
 
-    prediction = classifier.predict(pooled.cpu().numpy())
-    return prediction[0]
+    logit = model(image_pil)
+    prediction = (torch.sigmoid(logit) >= 0.5).int().cpu().numpy()
+    print(prediction[0][0])
+    return prediction[0][0]
 
 def main():
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     YOLO_path = "models/yolo_fined.pt"  # Path to the YOLO
-    image_path = "dataset/rotten_healthy/test/"  # Path to the input image
+    image_path = "samples" # "dataset/rotten_healthy/test/" # Path to the input image
     results_path = "output"  # Path to save the output image
     final_classes = ["Healthy", "Rotten"]
 
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
 
     yolo_detector = YOLO(YOLO_path)
-    backbone, device = load_backbone('resnet50')
-    classifier = joblib.load("models/rotten_healthy_classifier.pkl")
 
+    classifier = torch.load("models/classifier.pt", weights_only=False)
+    classifier.to(device)
     for image in os.listdir(image_path):
         if not image.endswith(('.jpg', '.jpeg', '.png', '.webp')):
             continue
@@ -70,10 +61,10 @@ def main():
 
             cropped = frame[y1:y2, x1:x2]
 
-            prediction = classify(cropped, backbone, classifier, transform, device)
-            label = f'{final_classes[prediction]}{yolo_detector.names[detected_cls]}'
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 4) # Draw rectangle
-            cv2.putText(frame, label, (x1, y1 +10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+            prediction = classify(cropped, classifier, transform, device)
+            label = f'{final_classes[prediction]} Potato'
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3) # Draw rectangle
+            cv2.putText(frame, label, (x1, y1 +20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
 
         os.makedirs(results_path, exist_ok=True)
         output_path = f"{results_path}/out_{image}"

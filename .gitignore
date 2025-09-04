@@ -3,6 +3,7 @@ dataset/rotten_/
 dataset/rotten_healthy/
 output/
 runs/
+/__pycache__/
 *.pt
 *.pkl
 *.webp
