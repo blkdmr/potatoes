@@ -80,6 +80,7 @@ def resnet50():
     ])
 
     aug_transform = T.Compose([
+        T.Resize((224, 224)),
         T.RandomHorizontalFlip(p=0.5),
         T.RandomRotation(degrees=10, expand=False),
         T.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.1, hue=0.02),
