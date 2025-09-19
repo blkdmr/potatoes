@@ -25,7 +25,7 @@ def draw_annotations(frame, ann_list, class_names):
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
         y_text = y1 + 20
         cv2.putText(frame, label, (x1, y_text),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 3)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
     return frame
 
 def draw_on_crop(crop, label, class_names):
@@ -33,7 +33,7 @@ def draw_on_crop(crop, label, class_names):
     h, w = crop.shape[:2]
     cv2.rectangle(crop, (0, 0), (w-1, h-1), (0, 255, 0), 2)
     cv2.putText(crop, f"{class_names[label]}",
-                (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 3)
+                (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
     return crop
 
 def main():
